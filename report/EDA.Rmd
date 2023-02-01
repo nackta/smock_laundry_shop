@@ -1,0 +1,67 @@
+---
+title: "EDA"
+output: html_document
+---
+
+```{r include=FALSE}
+library(xlsx)
+library(tidyverse)
+library(DataExplorer)
+```
+
+
+```{r fig.height=10, fig.width=10, message=FALSE}
+chemical_table <- read.xlsx("../raw data/chemical_table.xlsx",1, header = T)
+
+head(chemical_table)
+
+chemical_table %>%
+  group_by(material, group) %>% summarise(count=sum(count)) %>%
+  ggplot(aes(group, count, fill=group))+geom_bar(stat="identity")+
+  facet_wrap(~material, ncol=5)+coord_flip()+
+  theme_light()+theme(plot.title = element_text(hjust=0.5))+theme(legend.position="none")+
+  ggtitle('유해인자별 및 산업별 실시사업장 현황')
+```
+
+```{r fig.height=10, fig.width=10}
+chemical_table_2 <- read.xlsx("../raw data/chemical_table.xlsx",2, header = T)
+
+head(chemical_table_2)
+
+chemical_table_2 %>%
+  group_by(material, group) %>% summarise(count=sum(count)) %>%
+  ggplot(aes(group, count, fill=group))+geom_bar(stat="identity")+
+  facet_wrap(~material, ncol=5)+coord_flip()+
+  theme_light()+theme(plot.title = element_text(hjust=0.5))+theme(legend.position="none")+
+  ggtitle('직업병 유소견자의 유해인자별 산업별 발생현황')
+```
+
+```{r include=FALSE}
+kimhae_train_data <- read.csv("../data/kimhae_train_data.csv") %>% tibble() %>%
+  select(c(공장규모, 종업원수, 소분류항목명, 중분류항목명, 세탁소와거리, 공장별세탁량))
+```
+
+```{r}
+introduce(kimhae_train_data)
+```
+
+```{r fig.height=20, fig.width=10}
+plot_bar(kimhae_train_data %>% select(c(중분류항목명)), ncol=1)
+```
+
+```{r}
+plot_bar(kimhae_train_data %>% select(c(공장규모)), ncol=1)
+```
+
+```{r}
+plot_histogram(kimhae_train_data %>% select(공장별세탁량))
+plot_histogram(kimhae_train_data %>% select(공장별세탁량) %>% filter(공장별세탁량 > 0))
+```
+
+```{r}
+plot_correlation(kimhae_train_data %>% select(c(종업원수, 세탁소와거리, 공장별세탁량)))
+plot_correlation(kimhae_train_data %>% 
+                   select(c(종업원수, 세탁소와거리, 공장별세탁량)) %>%
+                   filter(공장별세탁량 > 0))
+```
+
